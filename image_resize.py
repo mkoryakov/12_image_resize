@@ -11,33 +11,30 @@ def is_valid_program_arguments(scale, width, height):
 
 def get_new_filepath(filepath, size):
     root, extension = os.path.splitext(filepath)
-    root = '%s__%dx%d' % (root, size[0], size[1])
-    return '%s%s' % (root, extension)
+    return '%s__%dx%d%s' % (root, size[0], size[1], extension)
 
 
-def get_new_size(old_size, new_scale, new_width, new_height):
+def get_new_size(path_to_original, new_scale, new_width, new_height):
+    original_picture = Image.open(path_to_original)
+    old_width = original_picture.size[0]
+    old_height = original_picture.size[1]
     if new_scale:
-        new_width = old_size[0] * new_scale
-        new_height = old_size[1] * new_scale
+        new_width = old_width * new_scale
+        new_height = old_height * new_scale
     elif new_width and new_height:
-        if new_width / new_height != old_size[0] / old_size[1]:
+        if new_width / new_height != old_width / old_height:
             print('''Введённые пропорции width/height не совпадают
             с пропорциями оригинального изображения''')
     elif new_width:
-        new_height = new_width * old_size[1] / old_size[0]
+        new_height = new_width * old_height / old_width
     else:
-        new_width = new_height * old_size[0] / old_size[1]
+        new_width = new_height * old_width / old_height
     return int(new_width), int(new_height)
 
 
-def resize_image(path_to_original, path_to_result,
-                 new_scale, new_width, new_height):
+def resize_image(path_to_original, path_to_result, new_size):
     original_picture = Image.open(path_to_original)
-    old_size = original_picture.size
-    new_size = get_new_size(old_size, new_scale, new_width, new_height)
     result_picture = original_picture.resize(new_size)
-    if not path_to_result:
-        path_to_result = get_new_filepath(path_to_original, new_size)
     result_picture.save(path_to_result)
     status_message = '''Изображение с новыми размерами сохранено
     в файл с именем %s''' % path_to_result
@@ -70,6 +67,10 @@ if __name__ == '__main__':
     if error:
         print(error)
     else:
+        new_size = get_new_size(path_to_original, new_scale,
+                                new_width, new_height)
+        if not path_to_result:
+            path_to_result = get_new_filepath(path_to_original, new_size)
         status_message = resize_image(path_to_original, path_to_result,
-                                      new_scale, new_width, new_height)
+                                      new_size)
         print(status_message)
