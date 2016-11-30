@@ -1,5 +1,6 @@
 import argparse
 import os.path
+import sys
 from PIL import Image
 
 
@@ -61,16 +62,13 @@ def get_program_arguments():
 
 
 if __name__ == '__main__':
-    (path_to_original, new_scale, new_width, new_height,
-     path_to_result) = get_program_arguments()
+    path_to_original, new_scale, new_width, new_height, path_to_result = get_program_arguments()
     error = is_valid_program_arguments(new_scale, new_width, new_height)
     if error:
         print(error)
-    else:
-        new_size = get_new_size(path_to_original, new_scale,
-                                new_width, new_height)
-        if not path_to_result:
-            path_to_result = get_new_filepath(path_to_original, new_size)
-        status_message = resize_image(path_to_original, path_to_result,
-                                      new_size)
-        print(status_message)
+        sys.exit(0)
+    new_size = get_new_size(path_to_original, new_scale, new_width, new_height)
+    if not path_to_result:
+        path_to_result = get_new_filepath(path_to_original, new_size)
+    status_message = resize_image(path_to_original, path_to_result, new_size)
+    print(status_message)
